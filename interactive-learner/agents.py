@@ -6,7 +6,7 @@ from crewai import Agent, LLM
 
 # Uses OpenAI's built-in web_search tool via the Responses API,
 # so no separate SERPER_API_KEY is needed — only OPENAI_API_KEY.
-researcher_llm = LLM(model="gpt-4o", api="responses", builtin_tools=["web_search"])
+researcher_llm = LLM(model="gpt-5.4-nano", api="responses", builtin_tools=["web_search"])
 
 researcher = Agent(
     role="Senior Research Analyst",

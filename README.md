@@ -35,3 +35,12 @@ A two-agent crew (`researcher` + `writer`) that researches a topic and writes a 
 cd interactive-learner
 python crew.py
 ```
+
+**Web UI**: a FastAPI server exposes the same crew over the browser, streaming each agent's progress live via Server-Sent Events.
+
+```bash
+cd interactive-learner
+uvicorn server:app --reload
+```
+
+Then open `http://localhost:8000`, enter a topic, and watch the researcher/writer agents work in real time.

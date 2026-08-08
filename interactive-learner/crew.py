@@ -13,18 +13,21 @@ def load_api_key():
     else:
         print("OpenAI API key not set. See setup/troubleshooting guide.")
 
-load_api_key()
-
 # Crew wires agents and tasks together
 # JS analogy: like app.listen() — kicks off the whole thing
 
 
-crew = Crew(
-    agents=[researcher, writer],
-    tasks=[research_task, writer_task],
-    process=Process.sequential,   # tasks run in order
-    verbose=True
-)
+def build_crew() -> Crew:
+    return Crew(
+        agents=[researcher, writer],
+        tasks=[research_task, writer_task],
+        process=Process.sequential,   # tasks run in order
+        verbose=True
+    )
 
-result = crew.kickoff(inputs={"topic":"AI in healthcare"})
-print(result)
+
+if __name__ == "__main__":
+    load_api_key()
+    crew = build_crew()
+    result = crew.kickoff(inputs={"topic": "AI in healthcare"})
+    print(result)

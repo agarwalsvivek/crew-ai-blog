@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Interactive Learner</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      /* max-width: 720px; */
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    #log {
+      background: #111;
+      color: #0f0;
+      padding: 0.5rem;
+      min-height: 8rem;
+      max-height: 16rem;
+      overflow-y: auto;
+      font-family: ui-monospace, monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      border-radius: 4px;
+    }
+    #result {
+      margin-top: 1.5rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+    #result:empty {
+      display: none;
+    }
+    .error {
+      color: #c00;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Learner</h1>
+  <form id="topic-form">
+    <input type="text" id="topic" placeholder="Enter a topic, e.g. AI in healthcare" required />
+    <button type="submit" id="submit-btn">Research</button>
+  </form>
+  <div id="log"></div>
+  <div class="error" id="error"></div>
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById("topic-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const logEl = document.getElementById("log");
+    const errorEl = document.getElementById("error");
+    const resultEl = document.getElementById("result");
+
+    function appendLog(message) {
+      logEl.textContent += message + "\n";
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const topic = document.getElementById("topic").value.trim();
+      if (!topic) return;
+
+      logEl.textContent = "";
+      errorEl.textContent = "";
+      resultEl.textContent = "";
+      submitBtn.disabled = true;
+
+      const es = new EventSource(`/api/run/stream?topic=${encodeURIComponent(topic)}`);
+
+      es.addEventListener("log", (ev) => {
+        const data = JSON.parse(ev.data);
+        appendLog(data.message);
+      });
+
+      es.addEventListener("result", (ev) => {
+        const data = JSON.parse(ev.data);
+        resultEl.textContent = data.output;
+        submitBtn.disabled = false;
+        es.close();
+      });
+
+      es.addEventListener("error", (ev) => {
+        // "error" fires both for our application-level error events (with data)
+        // and for transport-level connection failures (no data).
+        if (ev.data) {
+          const data = JSON.parse(ev.data);
+          errorEl.textContent = data.message;
+        } else {
+          errorEl.textContent = "Connection to the server was lost.";
+        }
+        submitBtn.disabled = false;
+        es.close();
+      });
+    });
+  </script>
+</body>
+</html>
