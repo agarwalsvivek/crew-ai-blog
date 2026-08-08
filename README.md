@@ -4,11 +4,13 @@ Learning project for [CrewAI](https://www.crewai.com/) — small examples of age
 
 ## Initial setup
 
+Dependencies are managed with [uv](https://docs.astral.sh/uv/) (see `pyproject.toml` / `uv.lock`).
+
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
+
+This creates `.venv` and installs everything automatically — no manual venv activation needed since `uv run` (below) uses it for you.
 
 Create a `.env` file in the project root with at least:
 
@@ -24,7 +26,7 @@ A single-agent crew that checks text.
 
 ```bash
 cd word-counter
-python main.py
+uv run python main.py
 ```
 
 ### interactive-learner
@@ -33,14 +35,14 @@ A two-agent crew (`researcher` + `writer`) that researches a topic and writes a 
 
 ```bash
 cd interactive-learner
-python crew.py
+uv run python crew.py
 ```
 
 **Web UI**: a FastAPI server exposes the same crew over the browser, streaming each agent's progress live via Server-Sent Events.
 
 ```bash
 cd interactive-learner
-uvicorn server:app --reload
+uv run uvicorn server:app --reload
 ```
 
 Then open `http://localhost:8000`, enter a topic, and watch the researcher/writer agents work in real time.
